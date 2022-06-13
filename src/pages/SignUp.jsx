@@ -7,7 +7,7 @@ import {
 } from 'firebase/auth'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase.config'
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
 import visibilityIcon from '../assets/svg/visibilityIcon.svg'
 
@@ -17,7 +17,6 @@ function SignUp () {
     userName: '',
     email: '',
     password: ''
-    
   })
 
   const navigate = useNavigate()
@@ -53,20 +52,44 @@ function SignUp () {
        * Copy Everything in @formData
        * delete password so that it is not store in database
        */
-      const formDataCopy = {...formData}
-      formDataCopy.userType = 'regular' /** @TODO | tagging records for admin section that will be implemented later */
+      const formDataCopy = { ...formData }
+      formDataCopy.userType =
+        'regular' /** @TODO | tagging records for admin section that will be implemented later */
       console.log(formDataCopy)
       delete formDataCopy.password
       formDataCopy.timestamp = serverTimestamp()
-      
+
       // update database to @users collection with user ID
-      await setDoc(doc(db, 'users', user.uid), formDataCopy)
-      navigate('/')
+
+      // await setDoc(doc(db, 'users', user.uid), formDataCopy)
+      // .then(
+      //   navigate('/'),
+      //   toast.success('User Created')
+      // )
+      const dbRef = doc(db, 'users', user.uid)
+      const updateDB = await toast.promise(setDoc(dbRef, formDataCopy),{
+        pending: 'Signing Up',
+        success: 'Success!'
+      }).then(
+        navigate('/')        
+      )
+
+      updateDB()
+      
+      
     } catch (error) {
       const userAlreadyExist = 'Email Address has previously been registered'
+      const passwordWeak = 'Password is too weak'
       const errorCode = error.code
+      console.log(errorCode)
+
       if (errorCode === 'auth/email-already-in-use') {
-        toast.warn(userAlreadyExist)
+        toast(userAlreadyExist)
+      }
+      if (errorCode === 'auth/weak-password') {
+        toast(passwordWeak)
+      } else {
+        console.log(error.code)
       }
     }
   }
