@@ -4,6 +4,7 @@ import {
   getAuth,  
   signInWithEmailAndPassword
 } from 'firebase/auth'
+import { toast } from 'react-toastify';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
 import visibilityIcon from '../assets/svg/visibilityIcon.svg'
 
@@ -39,6 +40,12 @@ function SignIn () {
       .catch(error => {
         const errorCode = error.code
         const errorMessage = error.message
+        
+        const userNotFound = 'User Not Found'
+        if(errorCode === 'auth/user-not-found') {
+          toast(userNotFound)
+        }
+        
         console.log('error code ', errorCode)
         console.log('error message ', errorMessage)
         // ..
