@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getAuth, updateProfile } from 'firebase/auth'
+import { getAuth, updateProfile, updateEmail  } from 'firebase/auth'
 import { updateDoc, doc } from 'firebase/firestore'
 import { db } from '../firebase.config'
 import { useNavigate, Link } from 'react-router-dom'
@@ -12,11 +12,11 @@ function Profile () {
 
   const [formData, setFormData] = useState({
     userName: auth.currentUser.displayName,
-    email: auth.currentUser.email
+    userEmail: auth.currentUser.email
   }) //set to null to check if there is a user
 
-  const { userName, email } = formData //take the info out and store in a obj
-
+  const { userName, userEmail } = formData //take the info out and store in a obj
+console.log(formData.userEmail)
   const onSubmit = async () => {
     try {
       if(auth.currentUser.displayName !==userName){
@@ -26,8 +26,14 @@ function Profile () {
         })
         // then update in firestore
         const userRef = doc(db, 'users', auth.currentUser.uid)
-        const updateUser = await toast.promise(updateDoc(userRef, {userName}),{pending: 'Please wait', success: 'Updated'})
+        await toast.promise(updateDoc(userRef, {userName}),{pending: 'Please wait', success: 'Updated'})
+
+        
+        /** @TODO Update userEmail address */
+
+        
       }
+      
       
     } catch (error) {
       console.log(error)
@@ -82,10 +88,10 @@ function Profile () {
             />
             <input
               type='text'
-              id='email'
+              id='userEmail'
               className={!changeDetails ? 'profileEmail' : 'profileEmailActive mb-2'}
               disabled={!changeDetails}
-              value={email}
+              value={userEmail}
               onChange={onChange}
             />
           </form>
