@@ -1,31 +1,36 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getAuth, createUserWithEmailAndPassword, updateProfile  } from "firebase/auth";
-import { db } from '../firebase.config';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile
+} from 'firebase/auth'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { db } from '../firebase.config'
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
 import visibilityIcon from '../assets/svg/visibilityIcon.svg'
 
 function SignUp () {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
-    
     userName: '',
     email: '',
     password: ''
+    
   })
 
   const navigate = useNavigate()
 
   const { userName, email, password } = formData
 
-  const onChange = (e) => {
-    setFormData((prevState) => ({
+  const onChange = e => {
+    setFormData(prevState => ({
       ...prevState,
       [e.target.id]: e.target.value
     }))
   }
 
-  const onSubmit = async(e) => {
+  const onSubmit = async e => {
     e.preventDefault()
 
     try {
@@ -33,11 +38,28 @@ function SignUp () {
        * Google OAuth - create new user
        */
       const auth = getAuth()
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
       const user = userCredential.user
       updateProfile(auth.currentUser, {
         displayName: userName
       })
+
+      /**
+       * Copy Everything in @formData
+       * delete password so that it is not store in database
+       */
+      const formDataCopy = {...formData}
+      formDataCopy.userType = 'regular' /** @TODO | tagging records for admin section that will be implemented later */
+      console.log(formDataCopy)
+      delete formDataCopy.password
+      formDataCopy.timestamp = serverTimestamp()
+      
+      // update database to @users collection with user ID
+      await setDoc(doc(db, 'users', user.uid), formDataCopy)
       navigate('/')
     } catch (error) {
       console.log(error)
@@ -95,9 +117,11 @@ function SignUp () {
               </button>
             </div>
           </form>
-          { /* TODO Google OAuth component*/}
+          {/* TODO Google OAuth component*/}
 
-          <Link to='/sign-in' className='registerLink'>Sign In Instead</Link>
+          <Link to='/sign-in' className='registerLink'>
+            Sign In Instead
+          </Link>
         </main>
       </div>
     </>
