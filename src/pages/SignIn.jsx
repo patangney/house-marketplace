@@ -1,12 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import {
-  getAuth,  
-  signInWithEmailAndPassword
-} from 'firebase/auth'
-import { toast } from 'react-toastify';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
 import visibilityIcon from '../assets/svg/visibilityIcon.svg'
+import { toast } from 'react-toastify'
 
 function SignIn () {
   const [showPassword, setShowPassword] = useState(false)
@@ -25,31 +22,35 @@ function SignIn () {
     }))
   }
 
-  const onSubmit = e => {
+  const onSubmit = async e => {
     e.preventDefault()
-    const auth = getAuth()
-    signInWithEmailAndPassword(auth, email, password)
-      .then(userCredential => {
-        // Signed in
-        const user = userCredential.user
-        if(user) {
-          navigate('/')
-        }
-        // ...
-      })
-      .catch(error => {
-        const errorCode = error.code
-        const errorMessage = error.message
-        
-        const userNotFound = 'User Not Found'
-        if(errorCode === 'auth/user-not-found') {
-          toast(userNotFound)
-        }
-        
-        console.log('error code ', errorCode)
-        console.log('error message ', errorMessage)
-        // ..
-      })
+    try {
+      const auth = getAuth()
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+
+      if (userCredential.user) {
+        navigate('/')
+      }
+    } catch (error) {
+      const errorCode = error.code
+      const errorMessage = error.message
+
+      const userNotFound = 'User Not Found'
+      const incorrectPassword = 'Incorrect Password'
+      if (errorCode === 'auth/user-not-found') {
+        toast(userNotFound)
+      }
+      if (errorCode === 'auth/wrong-password') {
+        toast(incorrectPassword)
+      } else {
+        toast('something went wrong')
+        console.log(errorMessage)
+      }
+    }
   }
 
   return (
