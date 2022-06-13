@@ -12,7 +12,12 @@ function SignIn () {
 
   const { email, password } = formData
 
-  const onChange = () => {}
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value
+    }))
+  }
 
   return (
     <>
@@ -58,6 +63,8 @@ function SignIn () {
             </div>
           </form>
           { /* TODO Google OAuth component*/}
+
+          <Link to='/sign-up' className='registerLink'>Sign Up Instead</Link>
         </main>
       </div>
     </>
