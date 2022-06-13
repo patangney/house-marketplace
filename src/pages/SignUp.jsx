@@ -63,7 +63,11 @@ function SignUp () {
       await setDoc(doc(db, 'users', user.uid), formDataCopy)
       navigate('/')
     } catch (error) {
-      console.log(error)
+      const userAlreadyExist = 'Email Address has previously been registered'
+      const errorCode = error.code
+      if (errorCode === 'auth/email-already-in-use') {
+        toast.warn(userAlreadyExist)
+      }
     }
   }
 

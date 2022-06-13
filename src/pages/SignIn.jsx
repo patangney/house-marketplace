@@ -42,12 +42,11 @@ function SignIn () {
       const userNotFound = 'User Not Found'
       const incorrectPassword = 'Incorrect Password'
       if (errorCode === 'auth/user-not-found') {
-        toast(userNotFound)
+        toast.error(userNotFound)
       }
       if (errorCode === 'auth/wrong-password') {
-        toast(incorrectPassword)
+        toast.error(incorrectPassword)
       } else {
-        toast('something went wrong')
         console.log(errorMessage)
       }
     }

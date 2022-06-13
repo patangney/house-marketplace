@@ -22,7 +22,7 @@ function App() {
         <Route path='/forgot-password' element={<ForgotPassword />} />
       </Routes>
       <Navbar />
-      <ToastContainer />
+      <ToastContainer theme='dark' />
     </Router>
     
     </>
