@@ -37,7 +37,7 @@ function SignUp () {
       /**
        * Google OAuth - create new user
        */
-      const auth = getAuth()
+      const auth = getAuth() /** @TODO change this to promise later */
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,

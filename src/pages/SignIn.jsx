@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import {
+  getAuth,  
+  signInWithEmailAndPassword
+} from 'firebase/auth'
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
 import visibilityIcon from '../assets/svg/visibilityIcon.svg'
 
@@ -11,12 +15,34 @@ function SignIn () {
   })
 
   const { email, password } = formData
+  const navigate = useNavigate()
 
-  const onChange = (e) => {
-    setFormData((prevState) => ({
+  const onChange = e => {
+    setFormData(prevState => ({
       ...prevState,
       [e.target.id]: e.target.value
     }))
+  }
+
+  const onSubmit = e => {
+    e.preventDefault()
+    const auth = getAuth()
+    signInWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        // Signed in
+        const user = userCredential.user
+        if(user) {
+          navigate('/')
+        }
+        // ...
+      })
+      .catch(error => {
+        const errorCode = error.code
+        const errorMessage = error.message
+        console.log('error code ', errorCode)
+        console.log('error message ', errorMessage)
+        // ..
+      })
   }
 
   return (
@@ -26,7 +52,7 @@ function SignIn () {
           <p className='pageHeader'>Welcome Back!</p>
         </header>
         <main>
-          <form>
+          <form onSubmit={onSubmit}>
             <input
               type='email'
               className='emailInput'
@@ -62,9 +88,11 @@ function SignIn () {
               </button>
             </div>
           </form>
-          { /* TODO Google OAuth component*/}
+          {/* TODO Google OAuth component*/}
 
-          <Link to='/sign-up' className='registerLink'>Sign Up Instead</Link>
+          <Link to='/sign-up' className='registerLink'>
+            Sign Up Instead
+          </Link>
         </main>
       </div>
     </>
