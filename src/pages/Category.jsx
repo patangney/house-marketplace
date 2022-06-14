@@ -24,15 +24,59 @@ function Category () {
       try {
         // Get reference
         const listingRef = collection(db, 'listings')
-        //Create a query
-        
+        //Create a query (NOTE: params.categoryName is what we put in the URl on App.js Route)
+        const queryDB = query(
+          listingRef,
+          where('type', '==', params.categoryName),
+          orderBy('timestamp', 'desc'),
+          limit(10)
+        )
+
+        // Execute Query to get snapshot
+        const querySnapshot = await getDocs(queryDB)
+        const listings = []
+        querySnapshot.forEach(doc => {
+          // console.log(doc.data())
+          return listings.push({
+            id: doc.id,
+            data: doc.data()
+          })
+        })
+        setListings(listings)
+        setLoading(false)
       } catch (error) {
-        console.log(error)
+        toast.error('Could not fetch listings')
       }
     }
     fetchListing()
-  }, [])
-  return <div>Category</div>
+  }, [params.categoryName])
+  return (
+    <div className='category'>
+      <header>
+        <p className='pageHeader'>
+          {params.categoryName === 'rent'
+            ? 'Places for rent'
+            : 'Places for sale'}
+        </p>
+      </header>
+      {loading ? (
+        <Spinner />
+      ) : listings && listings.length > 0 ? (
+        <>
+        <main>
+            <ul className="categoryListings">
+                {listings.map((listing) => (
+                    <h3 key={listing.id}>{listing.data.name}</h3>
+                ))}
+
+            </ul>
+        </main>
+        </>
+      ) : (
+        <p>No Listings for {params.categoryName}</p>
+      )}
+    </div>
+  )
 }
 
 export default Category
