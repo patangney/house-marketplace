@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { getAuth, updateProfile  } from 'firebase/auth'
 import { updateDoc, doc } from 'firebase/firestore'
 import { db } from '../firebase.config'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import arrowRight from '../assets/svg/keyboardArrowRightIcon.svg'
 import homeIcon from '../assets/svg/homeIcon.svg'
@@ -29,14 +29,9 @@ function Profile () {
         // then update in firestore
         const userRef = doc(db, 'users', auth.currentUser.uid)
         await toast.promise(updateDoc(userRef, {userName}),{pending: 'Please wait', success: 'Updated'})
-
         
         /** @TODO Update userEmail address */
-
-        
       }
-      
-      
     } catch (error) {
       console.log(error)
     }
@@ -48,13 +43,13 @@ function Profile () {
       [e.target.id]: e.target.value,
 
     }))
-
   }
 
   const navigate = useNavigate()
   const onLogout = () => {
     auth.signOut()
     navigate('/')
+    toast.info('Logged Out', {autoClose: 2000})
   }
 
   return (
@@ -98,6 +93,11 @@ function Profile () {
             />
           </form>
         </div>
+        <Link to='/create-listing' className='createListing'>
+          <img src={homeIcon} alt='Home' />
+          <p>Sell or rent your home</p>
+          <img src={arrowRight} alt='arrow right' />
+        </Link>
       </main>
     </div>
   )
