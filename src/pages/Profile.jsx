@@ -16,7 +16,7 @@ function Profile () {
   }) //set to null to check if there is a user
 
   const { userName, userEmail } = formData //take the info out and store in a obj
-console.log(formData.userEmail)
+
   const onSubmit = async () => {
     try {
       if(auth.currentUser.displayName !==userName){
