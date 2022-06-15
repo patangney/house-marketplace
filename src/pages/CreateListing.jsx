@@ -64,55 +64,55 @@ function CreateListing () {
     return <Spinner />
   }
 
-  const onSubmit = async (e) => {
+  const onSubmit = async e => {
     e.preventDefault()
     setLoading(true)
     console.log(formData)
 
     // Check if discounted price
-    if (discountedPrice >= regularPrice){
-        setLoading(false)
-        toast.error('Discounted price needs to be less than regular price')
-        return
+    if (discountedPrice >= regularPrice) {
+      setLoading(false)
+      toast.error('Discounted price needs to be less than regular price')
+      return
     }
 
     // Images
-    if(images.length > 6){
-        setLoading(false)
-        toast.error('Max 6 Images')
-        return
+    if (images.length > 6) {
+      setLoading(false)
+      toast.error('Max 6 Images')
+      return
     }
 
-    let geoLocation = {}
+    let geolocation = {}
     let location
 
-    if(geoLocationEnabled) {
+    if (geoLocationEnabled) {
+      const mapAPI = process.env.REACT_APP_GEO
+      const geoCodeURL = 'https://maps.googleapis.com/maps/api/geocode/json'
+      const userAddressParams = `?address=${address}&key=${mapAPI}`
+      const geoCodeUser = geoCodeURL + userAddressParams
+      const response = await fetch(geoCodeUser)
+      const data = await response.json()
 
-        const MAP_API_KEY = 'AIzaSyBhxVqxI3q2BC0Skr8ehw_c0MF4HtapbQA'
-        const geoCodeURL = 'https://maps.googleapis.com/maps/api/geocode/json'
-        const userAddressParams = `?address=${address}&key=` 
-        const geoCodeUser = geoCodeURL+userAddressParams+MAP_API_KEY
-        const response = await fetch(geoCodeUser)
-        const data = await response.json()
-        geoLocation.lat = data.results[0]?.geometry.location.lat ?? 0
-        geoLocation.lng = data.results[0]?.geometry.location.lng ?? 0
-        location = data.status === 'ZERO_RESULTS' ? undefined : data.results[0]?.formatted_address
+      geolocation.lat = data.results[0]?.geometry.location.lat ?? 0
+      geolocation.lng = data.results[0]?.geometry.location.lng ?? 0
 
-        if(location === undefined || location.includes('undefined')){
-            setLoading(false)
-            toast.error('Address not found')
-            return
-        }
-  
+      location =
+        data.status === 'ZERO_RESULTS'
+          ? undefined
+          : data.results[0]?.formatted_address
 
-    } else {
-        geoLocation.lat = latitude
-        geoLocation.lng = longitude
-        location = address
-
+      if (location === undefined || location.includes('undefined')) {
+        setLoading(false)
+        toast.error('Please enter a correct address')
+        return
+      } else {
+        geolocation.lat = latitude
+        geolocation.lng = longitude
+        console.log('loc', location)
+      }
     }
     setLoading(false)
-      
   }
   const onMutate = e => {
     let boolean = null
