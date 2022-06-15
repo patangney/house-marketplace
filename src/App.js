@@ -7,6 +7,7 @@ import CreateListing from './pages/CreateListing'
 import Category from './pages/Category'
 import Offers from './pages/Offers'
 import Profile from './pages/Profile'
+import Listing from './pages/Listing'
 import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 import ForgotPassword from './pages/ForgotPassword'
@@ -27,6 +28,8 @@ function App () {
           <Route path='/sign-up' element={<SignUp />} />
           <Route path='/forgot-password' element={<ForgotPassword />} />
           <Route path='/create-listing' element={<CreateListing />} />
+          <Route path='/category/:categoryName/:listingId' element={<Listing />} />
+
         </Routes>
         <Navbar />
         <ToastContainer theme='dark' />
