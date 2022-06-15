@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {db} from '../firebase.config'
+import {v4 as uuidv4} from 'uuid'
 import { useNavigate } from 'react-router-dom'
 import Spinner from '../components/Spinner'
 import { toast } from 'react-toastify'
@@ -112,6 +115,11 @@ function CreateListing () {
         console.log('loc', location)
       }
     }
+
+    // Handle Images
+    
+
+    //end
     setLoading(false)
   }
   const onMutate = e => {
