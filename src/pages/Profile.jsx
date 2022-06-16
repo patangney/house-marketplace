@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getAuth, updateProfile } from 'firebase/auth'
+import ListingItem from '../components/ListingItem'
 import {
   updateDoc,
   doc,
@@ -27,6 +28,36 @@ function Profile () {
   }) //set to null to check if there is a user
 
   const { userName, userEmail } = formData //take the info out and store in a obj
+
+  useEffect(() => {
+    //create index on google console to allow search
+    const fetchUserListings = async () => {
+      const listingsRef = collection(db, 'listings')
+
+      const q = query(
+        listingsRef,
+        where('userRef', '==', auth.currentUser.uid),
+        orderBy('timestamp', 'desc')
+      )
+      console.log(q)
+
+      const querySnap = await getDocs(q)
+
+      let listings = []
+
+      querySnap.forEach((doc) => {
+        return listings.push({
+          id: doc.id,
+          data: doc.data(),
+        })
+      })
+
+      setListings(listings)
+      setLoading(false)
+    }
+
+    fetchUserListings()
+  }, [auth.currentUser.uid])
 
   const onSubmit = async () => {
     try {
@@ -63,35 +94,20 @@ function Profile () {
     toast.info('Logged Out', { autoClose: 2000 })
   }
 
-  useEffect(() => {
-    //create index on google console to allow search
-    const fetchUserListings = async () => {
-      const listingsRef = collection(db, 'listings')
-
-      const q = query(
-        listingsRef,
-        where('userRef', '==', auth.currentUser.uid),
-        orderBy('timestamp', 'desc')
+  const onDelete = async (listingId) => {
+    if (window.confirm('Are you sure you want to delete?')) {
+      await deleteDoc(doc(db, 'listings', listingId))
+      const updatedListings = listings.filter(
+        (listing) => listing.id !== listingId
       )
-      console.log(q)
-
-      const querySnap = await getDocs(q)
-
-      let listings = []
-
-      querySnap.forEach((doc) => {
-        return listings.push({
-          id: doc.id,
-          data: doc.data(),
-        })
-      })
-
-      setListings(listings)
-      setLoading(false)
+      setListings(updatedListings)
+      toast.success('Successfully deleted listing')
     }
+  }
 
-    fetchUserListings()
-  }, [auth.currentUser.uid])
+  const onEdit = (listingId) => navigate(`/edit-listing/${listingId}`)
+
+  
 
   return (
     <div className='profile'>
@@ -143,6 +159,25 @@ function Profile () {
           <p>Sell or rent your home</p>
           <img src={arrowRight} alt='arrow right' />
         </Link>
+
+        {/** NOTE  Display user ads */}
+        {!loading && listings?.length > 0 && (
+          <>
+            <p className='listingText'>Your Listings</p>
+            <ul className='listingsList'>
+              {listings.map((listing) => (
+                <ListingItem
+                  key={listing.id}
+                  listing={listing.data}
+                  id={listing.id}
+                  onDelete={() => onDelete(listing.id)}
+                  onEdit={() => onEdit(listing.id)}
+                />
+              ))}
+            </ul>
+          </>
+        )}
+        
       </main>
     </div>
   )
