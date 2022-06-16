@@ -41,6 +41,12 @@ function Slider () {
     return <Spinner />
   }
 
+  // if no listings 
+  if(listings.length === 0 ){
+    console.log('no listings available for use in slider - add some listings!')
+    return <></>
+  }
+
   return listings && (
     <>
      <p className="exploreHeading">

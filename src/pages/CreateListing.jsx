@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid'
 import Spinner from '../components/Spinner'
 
 function CreateListing() {
-  
+  // eslint-disable-next-line
   const [geolocationEnabled, setGeolocationEnabled] = useState(true)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -67,7 +67,7 @@ function CreateListing() {
     return () => {
       isMounted.current = false
     }
-   
+    
   }, [isMounted])
 
   const onSubmit = async (e) => {
@@ -409,7 +409,7 @@ function CreateListing() {
               max='750000000'
               required
             />
-            {type === 'rent' && <p className='formPriceText'>$ / Month</p>}
+            {type === 'rent' && <p className='formPriceText'>€ / Month</p>}
           </div>
 
           {offer && (
