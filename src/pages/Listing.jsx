@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import { getDoc, doc, DocumentSnapshot } from 'firebase/firestore'
 import { db } from '../firebase.config'
 import { getAuth } from 'firebase/auth'
