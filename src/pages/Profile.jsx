@@ -1,6 +1,15 @@
-import { useState } from 'react'
-import { getAuth, updateProfile  } from 'firebase/auth'
-import { updateDoc, doc } from 'firebase/firestore'
+import { useState, useEffect } from 'react'
+import { getAuth, updateProfile } from 'firebase/auth'
+import {
+  updateDoc,
+  doc,
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  deleteDoc
+} from 'firebase/firestore'
 import { db } from '../firebase.config'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -9,9 +18,9 @@ import homeIcon from '../assets/svg/homeIcon.svg'
 
 function Profile () {
   const auth = getAuth()
-
+  const [loading, setLoading] = useState(true)
+  const [listings, setListings] = useState(null)
   const [changeDetails, setChangeDetails] = useState(false)
-
   const [formData, setFormData] = useState({
     userName: auth.currentUser.displayName,
     userEmail: auth.currentUser.email
@@ -21,15 +30,18 @@ function Profile () {
 
   const onSubmit = async () => {
     try {
-      if(auth.currentUser.displayName !==userName){
+      if (auth.currentUser.displayName !== userName) {
         // Update display name in fb
         await updateProfile(auth.currentUser, {
           displayName: userName
         })
         // then update in firestore
         const userRef = doc(db, 'users', auth.currentUser.uid)
-        await toast.promise(updateDoc(userRef, {userName}),{pending: 'Please wait', success: 'Updated'})
-        
+        await toast.promise(updateDoc(userRef, { userName }), {
+          pending: 'Please wait',
+          success: 'Updated'
+        })
+
         /** @TODO Update userEmail address */
       }
     } catch (error) {
@@ -37,11 +49,10 @@ function Profile () {
     }
   }
 
-  const onChange = (e) => {
-    setFormData((prevState) => ({
+  const onChange = e => {
+    setFormData(prevState => ({
       ...prevState,
-      [e.target.id]: e.target.value,
-
+      [e.target.id]: e.target.value
     }))
   }
 
@@ -49,8 +60,38 @@ function Profile () {
   const onLogout = () => {
     auth.signOut()
     navigate('/')
-    toast.info('Logged Out', {autoClose: 2000})
+    toast.info('Logged Out', { autoClose: 2000 })
   }
+
+  useEffect(() => {
+    //create index on google console to allow search
+    const fetchUserListings = async () => {
+      const listingsRef = collection(db, 'listings')
+
+      const q = query(
+        listingsRef,
+        where('userRef', '==', auth.currentUser.uid),
+        orderBy('timestamp', 'desc')
+      )
+      console.log(q)
+
+      const querySnap = await getDocs(q)
+
+      let listings = []
+
+      querySnap.forEach((doc) => {
+        return listings.push({
+          id: doc.id,
+          data: doc.data(),
+        })
+      })
+
+      setListings(listings)
+      setLoading(false)
+    }
+
+    fetchUserListings()
+  }, [auth.currentUser.uid])
 
   return (
     <div className='profile'>
@@ -78,7 +119,9 @@ function Profile () {
             <input
               type='text'
               id='userName'
-              className={!changeDetails ? 'profileName' : 'profileNameActive mb-2'}
+              className={
+                !changeDetails ? 'profileName' : 'profileNameActive mb-2'
+              }
               disabled={!changeDetails}
               value={userName}
               onChange={onChange}
@@ -86,7 +129,9 @@ function Profile () {
             <input
               type='text'
               id='userEmail'
-              className={!changeDetails ? 'profileEmail' : 'profileEmailActive mb-2'}
+              className={
+                !changeDetails ? 'profileEmail' : 'profileEmailActive mb-2'
+              }
               disabled={!changeDetails}
               value={userEmail}
               onChange={onChange}
