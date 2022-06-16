@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import { getDoc, doc, DocumentSnapshot } from 'firebase/firestore'
 import { db } from '../firebase.config'
 import { getAuth } from 'firebase/auth'
@@ -79,13 +79,29 @@ function Listing () {
           <li>{listing.parking && 'Parking Spot'}</li>
           <li>{listing.furnished && 'Furnished'}</li>
         </ul>
-        <p className='listingLocationTitle'>{/** @TODO  Map to go here */}</p>
+        <p className='listingLocationTitle'>Location</p>
+        <div className='leafletContainer'>
+          <MapContainer
+            style={{ height: '100%', width: '100%' }}
+            center={[listing.geolocation.lat, listing.geolocation.lng]}
+            zoom={15}
+            scrollWheelZoom={true}
+          >
+            <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+              url='https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'  />
+              <Marker position={[listing.geolocation.lat, listing.geolocation.lng]} title={listing.name} >
+                <Popup>{listing.location}</Popup>
+              </Marker>
+          </MapContainer>
+        </div>
 
         {auth.currentUser?.uid !== listing.userRef && (
           <Link
             to={`/contact/${listing.userRef}?listingName=${listing.name}&listingLocation=${listing.location}`}
             className='primaryButton'
-          >Contact Landlord</Link> //use this params to auto fill email
+          >
+            Contact Landlord
+          </Link> //use this params to auto fill email
         )}
       </div>
     </main>
