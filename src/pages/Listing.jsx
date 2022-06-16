@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import { getDoc, doc, DocumentSnapshot } from 'firebase/firestore'
+import { Navigation, Pagination, Scrollbar, A11y } from 'swiper'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+import 'swiper/css/scrollbar'
+import 'swiper/css/a11y'
 import { db } from '../firebase.config'
 import { getAuth } from 'firebase/auth'
 import Spinner from './../components/Spinner'
@@ -36,7 +43,27 @@ function Listing () {
 
   return (
     <main>
-      {/** @TODO SLIDER */}
+      <Swiper
+        modules={[Navigation, Pagination, Scrollbar, A11y]}
+        slidesPerView={1}
+        pagination={{ clickable: true }}
+        navigation
+        style={{ height: '300px' }}
+      >
+        {listing.imgUrls.map((url, index) => {
+          return (
+            <SwiperSlide key={index}>
+              <div
+                className='swiperSlideDiv'
+                style={{
+                  background: `url(${listing.imgUrls[index]}) center no-repeat`,
+                  backgroundSize: 'cover'
+                }}
+              ></div>
+            </SwiperSlide>
+          )
+        })}
+      </Swiper>
       <div
         className='shareIconDiv'
         onClick={() => {
@@ -72,12 +99,12 @@ function Listing () {
           </p>
         )}
         <ul className='listingDetailsList'>
-          <li>{listing.bedrooms > 1 ? `${listing.bedrooms}` : '1 Bedroom'}</li>
+          <li>{listing.bedrooms > 1 ? `${listing.bedrooms} Bedrooms` : '1 Bedroom'}</li>
           <li>
-            {listing.bathrooms > 1 ? `${listing.bathrooms}` : '1 Bathroom'}
+            {listing.bathrooms > 1 ? `${listing.bathrooms} Bathrooms` : '1 Bathroom'}
           </li>
-          <li>{listing.parking && 'Parking Spot'}</li>
-          <li>{listing.furnished && 'Furnished'}</li>
+          <li>{listing.parking && 'Parking Spot Available'}</li>
+          <li>{listing.furnished && 'Comes Furnished'}</li>
         </ul>
         <p className='listingLocationTitle'>Location</p>
         <div className='leafletContainer'>
@@ -87,11 +114,16 @@ function Listing () {
             zoom={15}
             scrollWheelZoom={true}
           >
-            <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-              url='https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'  />
-              <Marker position={[listing.geolocation.lat, listing.geolocation.lng]} title={listing.name} >
-                <Popup>{listing.location}</Popup>
-              </Marker>
+            <TileLayer
+              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+              url='https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'
+            />
+            <Marker
+              position={[listing.geolocation.lat, listing.geolocation.lng]}
+              title={listing.name}
+            >
+              <Popup>{listing.location}</Popup>
+            </Marker>
           </MapContainer>
         </div>
 
